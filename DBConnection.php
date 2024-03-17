@@ -58,18 +58,13 @@ class DBConnection
             $conn = $this->startConnection();
 
             if ($conn) {
-                // Prepare the SQL statement
-                $stmt = $conn->prepare("INSERT INTO users (phone_number, password, name, surname) VALUES (:phone, :password, :name, :surname)");
-
-                // Bind parameters
+                $stmt = $conn->prepare("INSERT INTO user (phone_number, password, name, surname) VALUES (:phone, :password, :name, :surname)");
                 $stmt->bindParam(':phone', $phone);
                 $stmt->bindParam(':password', $password);
                 $stmt->bindParam(':name', $name);
                 $stmt->bindParam(':surname', $surname);
 
-                // Execute the query
                 $stmt->execute();
-
                 echo "Account created successfully";
             }
         } catch (PDOException $e) {

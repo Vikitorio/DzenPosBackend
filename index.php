@@ -4,11 +4,13 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
 include 'DBConnection.php';
-$requestC = $_SERVER["REQUEST_URI"];
-echo json_encode($requestC);
-echo $requestC;
+include 'User.php';
+$requestC = explode("/",$_SERVER["REQUEST_URI"]);
 $dbConnection = new DBConnection();
-
+$data = json_decode(file_get_contents('php://input'));
+$data = (array) $data;
+$user = new User(...$data);
+echo $user->getUserInfo();
 /*
 
     if (isset($_POST['phone']) && isset($_POST['password'])) {
