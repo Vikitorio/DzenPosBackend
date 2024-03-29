@@ -6,11 +6,12 @@ class User
     private $password;
     private $name;
     private $surname;
-    public function __constructor($phone,$password,$name=null,$surname=null){
-        $this->phone = $phone;
-        $this->password = $password;
-        $this->name = $name;
-        $this->surname = $surname;
+    private $array;
+    public function __construct($data_array){
+        $this->phone = $data_array->phone;
+        $this->password = $data_array->password;
+        $this->name = $data_array->name;
+        $this->surname = $data_array->surname;
     }
 private $_id;
 public function registration(){
@@ -18,6 +19,6 @@ public function registration(){
     $db->createAccount($this->phone,$this->password,$this->name,$this->surname);
 }
 public function getUserInfo(){
-     return  $this->name.$this->phone;
+     echo  $this->phone.'-'.$this->password.'-'.$this->name.'-'.$this->surname;
     }
 }

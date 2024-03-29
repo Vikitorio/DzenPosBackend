@@ -54,7 +54,6 @@ class DBConnection
     }
     public function createAccount($phone, $password, $name = null, $surname = null){
         try {
-            // Start a new database connection
             $conn = $this->startConnection();
 
             if ($conn) {
