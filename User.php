@@ -13,7 +13,11 @@ class User
         $this->name = $data_array->name;
         $this->surname = $data_array->surname;
     }
-private $_id;
+    public function user_login(){
+        $db = new DBConnection();
+        $res = $db->authorization($this->phone,$this->password);
+        echo $res;
+    }
 public function registration(){
     $db = new DBConnection();
     $db->createAccount($this->phone,$this->password,$this->name,$this->surname);

@@ -9,10 +9,11 @@ $requestC = explode("/",$_SERVER["REQUEST_URI"]);
 $dbConnection = new DBConnection();
 $data = json_decode(file_get_contents('php://input'));
 $user = new User($data);
+$user->user_login();
+/*
+$user = new User($data);
 $user->getUserInfo();
 $user->registration();
-/*
-
 */
 
 ?>
