@@ -23,7 +23,8 @@ class DBConnection
         try {
             $con = $this->startConnection();
             $stmt = $con->prepare("SELECT COUNT(*) FROM session_token WHERE user_id = :id");
-            $stmt->bindParam(':user_id',$id);
+            $stmt->bindParam(':id',$id);
+            $stmt->execute();
             $count = $stmt->fetchColumn();
             return $count > 0;
 
@@ -39,11 +40,11 @@ class DBConnection
             $stmt->bindParam(':password', $password);
             $stmt->execute();
             $user = $stmt->fetch();
-            print_r($user);
-            if (!$this->isSessionExist($user['id'])){
+            $this->registrateSession($user['id']);
+            /*if (!$this->isSessionExist($user['id'])){
                 $this->registrateSession($user['id']);
-                return 1;
             }
+            */
             return 0;
 
         }catch (PDOException $e){
@@ -76,16 +77,23 @@ class DBConnection
     public function createAccount($phone, $password, $name = null, $surname = null){
         try {
             $conn = $this->startConnection();
-
             if ($conn && !$this->isAccountExist($phone)) {
                 $stmt = $conn->prepare("INSERT INTO user (phone_number, password, name, surname) VALUES (:phone, :password, :name, :surname)");
                 $stmt->bindParam(':phone', $phone);
                 $stmt->bindParam(':password', $password);
                 $stmt->bindParam(':name', $name);
                 $stmt->bindParam(':surname', $surname);
-
                 $stmt->execute();
-                echo "Account created successfully";
+
+            }
+            else{
+                $response = array(
+                    "status" => "done",
+                    "registration" => "false",
+                    "error" => "accaunt already exist",
+
+                );
+                echo json_encode($response);
             }
         } catch (PDOException $e) {
             echo "Error creating account: " . $e->getMessage();
@@ -105,12 +113,21 @@ class DBConnection
             $stmt->bindParam(':token', $token, PDO::PARAM_STR);
             $stmt->bindParam(':expiration', $expiration, PDO::PARAM_STR);
             $stmt->execute();
-            echo $id."  ".$token."  ".$expiration;
+            $data = array(
+                "status" => "true",
+                "user_id" => $id,
+                "session_token" => $token,
+
+            );
+            echo json_encode($data);
         }catch (PDOException $e) {
             echo "Connection failed: " . $e->getMessage();
             return null;
         }
         $conn = null;
+    }
+    public function addCompani($id,$sessionToken){
+
     }
 }
 

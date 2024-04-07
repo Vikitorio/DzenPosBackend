@@ -10,19 +10,19 @@ class User
     public function __construct($data_array){
         $this->phone = $data_array->phone;
         $this->password = $data_array->password;
-        $this->name = $data_array->name;
-        $this->surname = $data_array->surname;
+        $this->name = isset($data_array->name) ? $data_array->name : null;
+        $this->surname = isset($data_array->surname) ? $data_array->surname : null;
     }
     public function user_login(){
         $db = new DBConnection();
-        $res = $db->authorization($this->phone,$this->password);
-        echo $res;
+        $db->authorization($this->phone,$this->password);
     }
-public function registration(){
+    public function registration(){
     $db = new DBConnection();
     $db->createAccount($this->phone,$this->password,$this->name,$this->surname);
 }
-public function getUserInfo(){
+    public function getUserInfo(){
      echo  $this->phone.'-'.$this->password.'-'.$this->name.'-'.$this->surname;
     }
+
 }
