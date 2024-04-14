@@ -10,15 +10,23 @@ $dbConnection = new DBConnection();
 $data = json_decode(file_get_contents('php://input'));
 switch ($requestC[4]){
     case "login":
-        $user = new User($data);
-        $user->user_login();
+        $user = new User();
+        $user->user_login($data->phone,$data->password);
         break;
-    case "companies":
-        echo 'companies';
+    case "company":
+        echo 'company';
+        break;
+    case "add_company":
+        $user = new User();
+        $user->addCompany($data->token,$data->title,$data->adress);
+        break;
+    case "company_list":
+        $user = new User();
+        $user->getCompanyList($data->token);
         break;
     case "registration":
-        $user = new User($data);
-        $user->registration();
+        $user = new User();
+        $user->registration($data);
         break;
     default:
         echo "annexpected api";
