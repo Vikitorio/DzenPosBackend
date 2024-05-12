@@ -6,6 +6,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 include 'DBConnection.php';
 include 'User.php';
 include 'Company.php';
+include 'Warehouse.php';
 $requestC = explode("/",$_SERVER["REQUEST_URI"]);
 $dbConnection = new DBConnection();
 $data = json_decode(file_get_contents('php://input'),true);
@@ -44,14 +45,26 @@ switch ($requestC[4]){
     case "make_check":
         $user = new User();
         $userId = $user->getUserId($data["token"]);
-        $company = new Company();
-        $company->makeCheck($data);
+        $warehouse = new Warehouse();
+        $warehouse->makeCheck($data);
         break;
     case "checks":
         $user = new User();
         $userId = $user->getUserId($data["token"]);
         $company = new Company();
         $company->getCheckList($data);
+        break;
+    case "write_off":
+        $user = new User();
+        $userId = $user->getUserId($data["token"]);
+        $warehouse = new Warehouse();
+        $warehouse->makeWriteOffDocument($data);
+        break;
+    case "make_arrival":
+        $user = new User();
+        $userId = $user->getUserId($data["token"]);
+        $warehouse = new Warehouse();
+        $warehouse->makeArrivalDocument($data);
         break;
     default:
         echo "annexpected api";
