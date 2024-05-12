@@ -38,10 +38,10 @@ class User
             $conn = $db->startConnection();
             if ($conn && !$this->isAccountExist($data->phone)) {
                 $stmt = $conn->prepare("INSERT INTO user (phone_number, password, name, surname) VALUES (:phone, :password, :name, :surname)");
-                $stmt->bindParam(':phone', $data->phone);
-                $stmt->bindParam(':password', $data->password);
-                $stmt->bindParam(':name', $data->name);
-                $stmt->bindParam(':surname', $data->surname);
+                $stmt->bindParam(':phone', $data["phone"]);
+                $stmt->bindParam(':password', $data["password"]);
+                $stmt->bindParam(':name', $data["name"]);
+                $stmt->bindParam(':surname', $data["surname"]);
                 $stmt->execute();
                 $response = array(
                     "status" => "done",
