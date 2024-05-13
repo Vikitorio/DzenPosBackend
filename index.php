@@ -66,6 +66,14 @@ switch ($requestC[4]){
         $warehouse = new Warehouse();
         $warehouse->makeArrivalDocument($data);
         break;
+    case "check":
+        $user = new User();
+        $userId = $user->getUserId($data["token"]);
+        if($requestC[5] == "all"){
+            $company = new Company();
+            $company->checkList($data);
+        }
+        break;
     default:
         echo "annexpected api";
 }

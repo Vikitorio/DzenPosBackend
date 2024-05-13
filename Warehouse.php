@@ -58,6 +58,15 @@ class Warehouse
             return null;
         }
     }
+    public function checkList($data){
+        $db = new DBConnection();
+        try {
+            $con = $db->startConnection();
+        } catch (PDOException $e) {
+            echo "Connection failed: " . $e->getMessage();
+            return null;
+        }
+    }
     public function updateQuantity($productId, $quantity, $companyId){
         $db = new DBConnection();
         try {
