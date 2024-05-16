@@ -7,6 +7,7 @@ include 'DBConnection.php';
 include 'User.php';
 include 'Company.php';
 include 'Warehouse.php';
+
 $requestC = explode("/",$_SERVER["REQUEST_URI"]);
 $dbConnection = new DBConnection();
 $data = json_decode(file_get_contents('php://input'),true);
