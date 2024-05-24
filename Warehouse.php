@@ -38,8 +38,8 @@ class Warehouse
         $db = new DBConnection();
         try {
             $con = $db->startConnection();
-            $stmt = $con->prepare("INSERT INTO sales (document_id, product_id, company_id, type, amount, tradespot, discount, price, time) 
-                           VALUES (:document_id, :product_id, :company_id, :type, :amount, :tradespot, :discount, :price, NOW())");
+            $stmt = $con->prepare("INSERT INTO sales (document_id, product_id, company_id, type, amount, self_price, tradespot, discount, price, time) 
+                           VALUES (:document_id, :product_id, :company_id, :type, :amount, :self_price, :tradespot, :discount, :price, NOW())");
 
             foreach ($products as $product) {
                 $stmt->bindParam(':document_id', $checkId);
@@ -47,6 +47,7 @@ class Warehouse
                 $stmt->bindParam(':company_id', $companyId);
                 $stmt->bindParam(':type', $product['type']);
                 $stmt->bindParam(':amount', $product['amount']);
+                $stmt->bindParam(':self_price', $product['self_price']);
                 $stmt->bindParam(':tradespot', $product['tradespot']);
                 $stmt->bindParam(':discount', $product['discount']);
                 $stmt->bindParam(':price', $product['price']);
@@ -58,15 +59,7 @@ class Warehouse
             return null;
         }
     }
-    public function checkList($data){
-        $db = new DBConnection();
-        try {
-            $con = $db->startConnection();
-        } catch (PDOException $e) {
-            echo "Connection failed: " . $e->getMessage();
-            return null;
-        }
-    }
+
     public function updateQuantity($productId, $quantity, $companyId){
         $db = new DBConnection();
         try {

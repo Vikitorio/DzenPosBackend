@@ -7,7 +7,7 @@ include 'DBConnection.php';
 include 'User.php';
 include 'Company.php';
 include 'Warehouse.php';
-
+include "CompanyStatistic.php";
 $requestC = explode("/",$_SERVER["REQUEST_URI"]);
 $dbConnection = new DBConnection();
 $data = json_decode(file_get_contents('php://input'),true);
@@ -71,8 +71,8 @@ switch ($requestC[4]){
         $user = new User();
         $userId = $user->getUserId($data["token"]);
         if($requestC[5] == "all"){
-            $company = new Company();
-            $company->checkList($data);
+            $statistic = new CompanyStatistic();
+            $statistic->checkList($data);
         }
         break;
     default:
