@@ -24,7 +24,8 @@ class Company
             } else {
                 $imageSrc = null;
             }
-
+            $data["image_src"] = $imageSrc;
+            /*
             $stmt = $con->prepare("INSERT INTO product (company_id, title, type, category_id, tax_id, description, cost, selling_price, quantity, image_src) VALUE (:company_id, :title, :type, :category_id, :tax_id, :description, :cost, :selling_price, :quantity, :image_src)");
             $stmt->bindParam(':company_id', $data["company_id"]);
             $stmt->bindParam(':title', $data["title"]);
@@ -37,8 +38,11 @@ class Company
             $stmt->bindParam(':quantity', $data["quantity"]);
             $stmt->bindParam(':image_src', $imageSrc);
             $stmt->execute();
+            */
+            $pr_rep = new ProductRepository();
+
             $result = array();
-            $i = 0;
+            $result["status"] = $pr_rep->addProduct($data);
             echo json_encode($result);
 
         } catch (PDOException $e) {

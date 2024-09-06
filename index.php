@@ -8,6 +8,7 @@ include 'User.php';
 include 'Company.php';
 include 'Warehouse.php';
 include "CompanyStatistic.php";
+include "ProductRepository.php";
 
 
 if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
