@@ -164,6 +164,46 @@ class Warehouse
             return null;
         }
     }
+    public function getWriteOffDocuments($companyId) {
+        $db = new DBConnection();
+        try {
+            $con = $db->startConnection();
+            $stmt = $con->prepare("SELECT wd.id, wd.sum, wd.time,
+                                wp.id AS product_id, wp.amount, wp.cost, wp.document_id, wp.company_id
+                                FROM write_off_doc wd
+                                JOIN write_off_products wp ON wd.id = wp.document_id
+                                WHERE wd.company_id = :company_id");
+            $stmt->bindParam(':company_id', $companyId);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $formattedData = array();
+            foreach ($result as $row) {
+                $documentId = $row['id'];
+                if (!isset($formattedData[$documentId])) {
+                    $formattedData[$documentId] = array(
+                        'id' => $documentId,
+                        'sum' => $row['sum'],
+                        'time' => $row['time'],
+                        'products' => array()
+                    );
+                }
+                $formattedData[$documentId]['products'][] = array(
+                    'id' => $row['product_id'],
+                    'amount' => $row['amount'],
+                    'cost' => $row['cost'],
+                    'document_id' => $row['document_id'],
+                    'company_id' => $row['company_id']
+                );
+            }
+
+            $response = array('data' => array_values($formattedData));
+            echo json_encode($response);
+        } catch (PDOException $e) {
+            echo "Connection failed: " . $e->getMessage();
+            return null;
+        }
+    }
     public function updateCostAndSellPrice($productId, $quantity, $cost, $sellPrice, $companyId) {
         $db = new DBConnection();
         try {
@@ -183,10 +223,9 @@ class Warehouse
             } elseif ($currentQuantity <= 0) {
                 $newCost = $cost;
             }
-            $stmt = $con->prepare("UPDATE product SET cost = :cost, selling_price = :sell_price,quantity = quantity + :quantity	WHERE id = :productId AND company_id = :companyId");
+            $stmt = $con->prepare("UPDATE product SET cost = :cost,quantity = quantity + :quantity	WHERE id = :productId AND company_id = :companyId");
             $stmt->bindParam(':productId', $productId);
             $stmt->bindParam(':cost', $newCost);
-            $stmt->bindParam(':sell_price', $sellPrice);
             $stmt->bindParam(':companyId', $companyId);
             $stmt->bindParam(':quantity', $quantity);
             $stmt->execute();

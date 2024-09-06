@@ -3,11 +3,29 @@
 
 class Company
 {
-    public function addProduct($userId,$data){
+    public function addProduct($userId, $data) {
         $db = new DBConnection();
         try {
             $con = $db->startConnection();
-            $stmt = $con->prepare("INSERT INTO product (company_id,title,type,category_id,tax_id,description,cost,selling_price,quantity) VALUE (:company_id,:title,:type,:category_id,:tax_id,:description,:cost,:selling_price,:quantity)");
+
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $image = $_FILES['image'];
+                $companyId = $data["company_id"];
+                $targetDir = $_SERVER['DOCUMENT_ROOT'] . '/images/ProductImages/' . $companyId . '/';
+                if (!is_dir($targetDir)) {
+                    mkdir($targetDir, 0755, true);
+                }
+                $targetFile = $targetDir . basename($image['name']);
+                if (move_uploaded_file($image['tmp_name'], $targetFile)) {
+                    $imageSrc = '/images/ProductImages/' . $companyId . '/' . basename($image['name']);
+                } else {
+                    throw new Exception('Failed to upload the image.');
+                }
+            } else {
+                $imageSrc = null;
+            }
+
+            $stmt = $con->prepare("INSERT INTO product (company_id, title, type, category_id, tax_id, description, cost, selling_price, quantity, image_src) VALUE (:company_id, :title, :type, :category_id, :tax_id, :description, :cost, :selling_price, :quantity, :image_src)");
             $stmt->bindParam(':company_id', $data["company_id"]);
             $stmt->bindParam(':title', $data["title"]);
             $stmt->bindParam(':type', $data["type"]);
@@ -17,63 +35,78 @@ class Company
             $stmt->bindParam(':cost', $data["cost"]);
             $stmt->bindParam(':selling_price', $data["selling_price"]);
             $stmt->bindParam(':quantity', $data["quantity"]);
+            $stmt->bindParam(':image_src', $imageSrc);
             $stmt->execute();
             $result = array();
             $i = 0;
-            $i = 0;
-            while ($row = $stmt->fetch()) {
-                $result[$i]["company_id"] = $row["company_id"];
-                $result[$i]["id"] = $row["id"];
-                $result[$i]["trading_point_id"] = $row["trading_point_id"];
-                $result[$i]["status"] = $row["status"];
-                $result[$i]["worker_id"] = $row["worker_id"];
-                $result[$i]["client_id"] = $row["client_id"];
-                $result[$i]["date"] = $row["date"];
-                $result[$i]["time"] = $row["time"];
-                $result[$i]["cash_pay"] = $row["cash_pay"];
-                $result[$i]["card_pay"] = $row["card_pay"];
-                $result[$i]["bonus_pay"] = $row["bonus_pay"];
-                $result[$i]["promotion_id"] = $row["promotion_id"];
-                $result[$i]["discount_id"] = $row["discount_id"];
-                $result[$i]["discount_sum"] = $row["discount_sum"];
-                $result[$i]["final_price"] = $row["final_price"];
-                $i++;
-            }
             echo json_encode($result);
 
-        }catch (PDOException $e){
+        } catch (PDOException $e) {
             echo "Connection failed: " . $e->getMessage();
             return null;
-        }
-
-}
-
-
-    public function getProductList($data){
-        $db = new DBConnection();
-        try{
-            $con = $db->startConnection();
-            $stmt = $con->prepare("SELECT * FROM product WHERE company_id = :company_id");
-            $stmt->bindParam(':company_id', $data["company_id"]);
-            $stmt->execute();
-            $result = array();
-            $i = 0;
-            while($row = $stmt->fetch()){
-                $result[$i]["id"] = $row["id"];
-                $result[$i]["title"] = $row["title"];
-                $result[$i]["type"] = $row["type"];
-                $result[$i]["category_id"] = $row["category_id"];
-                $result[$i]["description"] = $row["description"];
-                $result[$i]["cost"] = $row["cost"];
-                $result[$i]["selling_price"] = $row["selling_price"];
-                $result[$i]["quantity"] = $row["quantity"];
-                $i++;
-            }
-            echo json_encode($result);
-        }catch (PDOException $e) {
-            echo "Connection failed: " . $e->getMessage();
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
             return null;
         }
     }
 
+
+    public function getProduct($data)
+    {
+        $db = new DBConnection();
+        try {
+            $con = $db->startConnection();
+            $query = "SELECT * FROM product WHERE company_id = :company_id";
+            $params = [':company_id' => $data["company_id"]];
+
+            if (isset($data["id"])) {
+                $query .= " AND id = :id";
+                $params[':id'] = $data["id"];
+            }
+
+            $stmt = $con->prepare($query);
+            $stmt->execute($params);
+
+            if (isset($data["id"])) {
+                // Return a single product
+                $row = $stmt->fetch();
+                if ($row) {
+                    $result = [
+                        "id" => $row["id"],
+                        "title" => $row["title"],
+                        "type" => $row["type"],
+                        "category_id" => $row["category_id"],
+                        "description" => $row["description"],
+                        "cost" => $row["cost"],
+                        "selling_price" => $row["selling_price"],
+                        "quantity" => $row["quantity"],
+                        "image_src" => $row["image_src"]
+                    ];
+                } else {
+                    $result = null;
+                }
+            } else {
+                // Return a product list
+                $result = array();
+                while ($row = $stmt->fetch()) {
+                    $result[] = [
+                        "id" => $row["id"],
+                        "title" => $row["title"],
+                        "type" => $row["type"],
+                        "category_id" => $row["category_id"],
+                        "description" => $row["description"],
+                        "cost" => $row["cost"],
+                        "selling_price" => $row["selling_price"],
+                        "quantity" => $row["quantity"],
+                        "image_src" => $row["image_src"]
+                    ];
+                }
+            }
+
+            echo json_encode($result);
+        } catch (PDOException $e) {
+            echo "Connection failed: " . $e->getMessage();
+            return null;
+        }
+    }
 }

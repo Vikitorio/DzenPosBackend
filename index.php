@@ -8,9 +8,58 @@ include 'User.php';
 include 'Company.php';
 include 'Warehouse.php';
 include "CompanyStatistic.php";
+
+
+if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+    exit();
+}
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    // Stop the PHP algorithm execution
+    exit();
+}
 $requestC = explode("/",$_SERVER["REQUEST_URI"]);
 $dbConnection = new DBConnection();
-$data = json_decode(file_get_contents('php://input'),true);
+$method = $_SERVER['REQUEST_METHOD'];
+$contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
+
+/*if ($contentType === 'application/json') {
+    // Handle JSON data
+    $data = json_decode(file_get_contents('php://input'), true);
+} elseif (strpos($contentType, 'multipart/form-data') !== false) {
+    // Handle form data
+    $data = array(
+        'token' => $_POST['token'],
+        'company_id' => $_POST['company_id'],
+        'title' => $_POST['title'],
+        'type' => $_POST['type'],
+        'category_id' => $_POST['category_id'],
+        'description' => $_POST['description'],
+        'cost' => $_POST['cost'],
+        'selling_price' => $_POST['selling_price'],
+        'quantity' => $_POST['quantity']
+    );
+} else {
+    $data = null;
+}
+*/
+
+if (strpos($contentType, 'multipart/form-data') !== false) {
+    // Handle form data
+    $data = array(
+        'token' => $_POST['token'],
+        'company_id' => $_POST['company_id'],
+        'title' => $_POST['title'],
+        'type' => $_POST['type'],
+        'category_id' => $_POST['category_id'],
+        'description' => $_POST['description'],
+        'cost' => $_POST['cost'],
+        'selling_price' => $_POST['selling_price'],
+        'quantity' => $_POST['quantity']
+    );
+} else {
+    $data = json_decode(file_get_contents('php://input'), true);
+}
+
 switch ($requestC[4]){
     case "login":
         $user = new User();
@@ -33,15 +82,14 @@ switch ($requestC[4]){
         break;
     case "add_product":
         $user = new User();
-        $userId = $user->getUserId($data["token"]);
         $company = new Company();
-        $company->addProduct($userId,$data);
+        $company->addProduct($userId = 1,$data);
         break;
     case "get_product":
         $user = new User();
-        $userId = $user->getUserId($data["token"]);
+       // $userId = $user->getUserId($data["token"]);
         $company = new Company();
-        $company->getProductList($data);
+        $company->getProduct($data);
         break;
     case "make_check":
         $user = new User();
@@ -74,6 +122,14 @@ switch ($requestC[4]){
             $statistic = new CompanyStatistic();
             $statistic->checkList($data);
         }
+        break;
+    case "get_write_off":
+        $warehouse = new Warehouse();
+        $warehouse->getWriteOffDocuments($data["company_id"]);
+        break;
+    case "get_arrivals":
+        $statistic = new CompanyStatistic();
+        $statistic->getArrivalDocuments($data["company_id"]);
         break;
     default:
         echo "annexpected api";

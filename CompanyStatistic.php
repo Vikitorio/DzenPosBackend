@@ -28,6 +28,48 @@ class CompanyStatistic
             return null;
         }
     }
+    public function getArrivalDocuments($companyId) {
+        $db = new DBConnection();
+        try {
+            $con = $db->startConnection();
+            $stmt = $con->prepare("SELECT ad.id, ad.cost AS sum, ad.pay_status , ad.time, 
+                                pa.id AS product_id, pa.amount, pa.cost, pa.sell_price, pa.document_id, pa.company_id
+                                FROM arrival_doc ad
+                                JOIN product_arrival pa ON ad.id = pa.document_id
+                                WHERE ad.company_id = :company_id");
+            $stmt->bindParam(':company_id', $companyId);
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $formattedData = array();
+            foreach ($result as $row) {
+                $documentId = $row['id'];
+                if (!isset($formattedData[$documentId])) {
+                    $formattedData[$documentId] = array(
+                        'id' => $documentId,
+                        'sum' => $row['sum'],
+                        'pay_status' => $row['pay_status'],
+                        'time' => $row['time'],
+                        'products' => array()
+                    );
+                }
+                $formattedData[$documentId]['products'][] = array(
+                    'id' => $row['product_id'],
+                    'amount' => $row['amount'],
+                    'cost' => $row['cost'],
+                    'sell_price' => $row['sell_price'],
+                    'document_id' => $row['document_id'],
+                    'company_id' => $row['company_id']
+                );
+            }
+
+            $response = array('data' => array_values($formattedData));
+            echo json_encode($response);
+        } catch (PDOException $e) {
+            echo "Connection failed: " . $e->getMessage();
+            return null;
+        }
+    }
     public function checkList($data){
         $db = new DBConnection();
         try {
@@ -35,11 +77,22 @@ class CompanyStatistic
             $token = $data['token'];
             $company_id = $data['company_id'];
             $sql = "SELECT c.id, c.status, c.client_id, CONCAT(c.date, ' ', c.time) AS datetime, c.cash_pay, c.card_pay, c.bonus_pay, c.promotion_id, c.discount_id, c.discount_sum, c.final_price 
-                FROM `check` c 
-                WHERE c.company_id = :company_id";
+        FROM `check` c 
+        WHERE c.company_id = :company_id";
+
+            $params = [':company_id' => $company_id];
+
+            if (isset($data['filters']['date']['from']) && isset($data['filters']['date']['to'])) {
+                $fromDate = $data['filters']['date']['from'];
+                $toDate = $data['filters']['date']['to'];
+
+                $sql .= " AND DATE(c.date) BETWEEN :from_date AND :to_date";
+                $params[':from_date'] = $fromDate;
+                $params[':to_date'] = $toDate;
+            }
+
             $stmt = $con->prepare($sql);
-            $stmt->bindParam(':company_id', $company_id);
-            $stmt->execute();
+            $stmt->execute($params);
             $checks = array();
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $check = array(
@@ -57,9 +110,24 @@ class CompanyStatistic
                     'final_price' => $row['final_price'],
                     'products' => array()
                 );
-                $productSql = "SELECT product_id, type, amount, tradespot, discount,self_price, price
-                           FROM sales 
-                           WHERE document_id = :check_id AND company_id = :company_id";
+                $productSql = "
+    SELECT 
+        s.product_id, 
+        s.type, 
+        s.amount, 
+        s.tradespot, 
+        s.discount,
+        s.self_price, 
+        s.price, 
+        p.title
+    FROM 
+        sales s
+    JOIN 
+        product p ON s.product_id = p.id
+    WHERE 
+        s.document_id = :check_id AND 
+        s.company_id = :company_id
+";
                 $productStmt = $con->prepare($productSql);
                 $productStmt->bindParam(':check_id', $row['id']);
                 $productStmt->bindParam(':company_id', $company_id);
@@ -68,11 +136,14 @@ class CompanyStatistic
                     $product = array(
                         'product_id' => $productRow['product_id'],
                         'type' => $productRow['type'],
+                        'title' => $productRow['title'],
                         'amount' => $productRow['amount'],
                         'tradespot' => $productRow['tradespot'],
                         'discount' => $productRow['discount'],
                         'self_price' => $productRow['self_price'],
-                        'price' => $productRow['price']
+                        'self_price_sum' => $productRow['self_price']*$productRow['amount'],
+                        'price' => $productRow['price'],
+                        'price_sum' => $productRow['price']*$productRow['amount'],
 
                     );
                     $check['products'][] = $product;
@@ -87,4 +158,5 @@ class CompanyStatistic
             return null;
         }
     }
+
 }
