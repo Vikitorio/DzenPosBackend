@@ -1,5 +1,5 @@
 <?php
-
+namespace App;
 class Warehouse
 {
     public function makeCheck($data){
@@ -175,7 +175,7 @@ class Warehouse
                                 WHERE wd.company_id = :company_id");
             $stmt->bindParam(':company_id', $companyId);
             $stmt->execute();
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             $formattedData = array();
             foreach ($result as $row) {
@@ -212,7 +212,7 @@ class Warehouse
             $stmt->bindParam(':productId', $productId);
             $stmt->bindParam(':companyId', $companyId);
             $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
             $currentQuantity = $result['quantity'];
             $currentCost = $result['cost'];
 

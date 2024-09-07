@@ -1,5 +1,6 @@
 <?php
 
+namespace App;
 class DBConnection
 {
     private $user = 'root';
@@ -9,12 +10,12 @@ class DBConnection
 
     public function startConnection(){
         try {
-            $conn = new PDO("mysql:host={$this->serverName};dbname={$this->dbName}", $this->user, $this->password);
+            $conn = new \PDO("mysql:host={$this->serverName};dbname={$this->dbName}", $this->user, $this->password);
 
-            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
             return $conn;
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             echo "Connection failed: " . $e->getMessage();
             return null;
         }
@@ -28,7 +29,7 @@ class DBConnection
             $count = $stmt->fetchColumn();
             return $count > 0;
 
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             echo "failed: " . $e->getMessage();
         }
     }

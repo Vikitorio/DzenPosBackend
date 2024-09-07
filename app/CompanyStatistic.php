@@ -1,5 +1,5 @@
 <?php
-
+namespace App;
 
 class CompanyStatistic
 {
@@ -39,7 +39,7 @@ class CompanyStatistic
                                 WHERE ad.company_id = :company_id");
             $stmt->bindParam(':company_id', $companyId);
             $stmt->execute();
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
             $formattedData = array();
             foreach ($result as $row) {
@@ -94,7 +94,7 @@ class CompanyStatistic
             $stmt = $con->prepare($sql);
             $stmt->execute($params);
             $checks = array();
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                 $check = array(
                     'id' => $row['id'],
                     'status' => $row['status'],
@@ -132,7 +132,7 @@ class CompanyStatistic
                 $productStmt->bindParam(':check_id', $row['id']);
                 $productStmt->bindParam(':company_id', $company_id);
                 $productStmt->execute();
-                while ($productRow = $productStmt->fetch(PDO::FETCH_ASSOC)) {
+                while ($productRow = $productStmt->fetch(\PDO::FETCH_ASSOC)) {
                     $product = array(
                         'product_id' => $productRow['product_id'],
                         'type' => $productRow['type'],

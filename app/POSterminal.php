@@ -1,6 +1,6 @@
 <?php
 
-
+namespace App;
 class POSterminal
 {
     public function makeCheck($data){

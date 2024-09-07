@@ -1,5 +1,5 @@
 <?php
-
+namespace App;
 class User
 {
     private $phone;
@@ -36,7 +36,7 @@ class User
     $db = new DBConnection();
         try {
             $conn = $db->startConnection();
-            if ($conn && !$this->isAccountExist($data->phone)) {
+            if (!$this->isAccountExist($data["phone"])) {
                 $stmt = $conn->prepare("INSERT INTO user (phone_number, password, name, surname) VALUES (:phone, :password, :name, :surname)");
                 $stmt->bindParam(':phone', $data["phone"]);
                 $stmt->bindParam(':password', $data["password"]);
@@ -98,9 +98,9 @@ class User
         try{
             $con = $db->startConnection();
             $stmt = $con->prepare("INSERT INTO session_token (user_id, token, expiration) VALUES (:user_id, :token, :expiration)");
-            $stmt->bindParam(':user_id', $id, PDO::PARAM_INT);
-            $stmt->bindParam(':token', $token, PDO::PARAM_STR);
-            $stmt->bindParam(':expiration', $expiration, PDO::PARAM_STR);
+            $stmt->bindParam(':user_id', $id, \PDO::PARAM_INT);
+            $stmt->bindParam(':token', $token, \PDO::PARAM_STR);
+            $stmt->bindParam(':expiration', $expiration, \PDO::PARAM_STR);
             $stmt->execute();
             $data = array(
                 "status" => "true",
