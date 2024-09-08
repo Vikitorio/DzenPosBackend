@@ -1,39 +1,57 @@
 <?php
 
 namespace App;
-class DBConnection
+
+final class DBConnection
 {
-    private $user = 'root';
-    private $serverName = 'localhost';
-    private $password = '';
-    private $dbName = 'testdb';
+    private static ?self $instance = null;
+    private $conn = null;
 
-    public function startConnection(){
+    private string $user = 'root';
+    private string $serverName = 'localhost';
+    private string $password = '';
+    private string $dbName = 'testdb';
+
+    private function __construct()
+    {
         try {
-            $conn = new \PDO("mysql:host={$this->serverName};dbname={$this->dbName}", $this->user, $this->password);
-
-            $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-            return $conn;
+            $this->conn = new \PDO("mysql:host={$this->serverName};dbname={$this->dbName}", $this->user, $this->password);
         } catch (\PDOException $e) {
-            echo "Connection failed: " . $e->getMessage();
-            return null;
+            throw new \Exception("Database connection failed: " . $e->getMessage());
         }
     }
-    public function isSessionExist($id){
+
+    public static function getInstance(): self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    public function getConnection(): ?\PDO
+    {
+        return $this->conn;
+    }
+
+    public function isSessionExist($id): bool
+    {
         try {
-            $con = $this->startConnection();
-            $stmt = $con->prepare("SELECT COUNT(*) FROM session_token WHERE user_id = :id");
-            $stmt->bindParam(':id',$id);
+            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM session_token WHERE user_id = :id");
+            $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
             $stmt->execute();
             $count = $stmt->fetchColumn();
             return $count > 0;
-
         } catch (\PDOException $e) {
-            echo "failed: " . $e->getMessage();
+            return false;
         }
     }
-
+    public function __clone(): void
+    {
+    }
+    public function __wakeup(): void
+    {
+    }
 
 }
 

@@ -5,7 +5,7 @@ class ProductRepository
 {
     private $dbConnection;
     public function __construct(){
-        $db = new DBConnection();
+        $db = DBConnection::getInstance();
         $this->dbConnection = $db->startConnection();
     }
     public function addProduct($product) {
