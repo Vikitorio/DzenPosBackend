@@ -18,26 +18,6 @@ $dbConnection = new \App\DBConnection();
 $method = $_SERVER['REQUEST_METHOD'];
 $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
 
-/*if ($contentType === 'application/json') {
-    // Handle JSON data
-    $data = json_decode(file_get_contents('php://input'), true);
-} elseif (strpos($contentType, 'multipart/form-data') !== false) {
-    // Handle form data
-    $data = array(
-        'token' => $_POST['token'],
-        'company_id' => $_POST['company_id'],
-        'title' => $_POST['title'],
-        'type' => $_POST['type'],
-        'category_id' => $_POST['category_id'],
-        'description' => $_POST['description'],
-        'cost' => $_POST['cost'],
-        'selling_price' => $_POST['selling_price'],
-        'quantity' => $_POST['quantity']
-    );
-} else {
-    $data = null;
-}
-*/
 
 if (strpos($contentType, 'multipart/form-data') !== false) {
     // Handle form data
@@ -78,13 +58,13 @@ switch ($requestC[4]){
         break;
     case "add_product":
         $user = new \App\User();
-        $company = new \App\Company();
+        $company = new \App\Product();
         $company->addProduct($userId = 1,$data);
         break;
     case "get_product":
         $user = new \App\User();
        // $userId = $user->getUserId($data["token"]);
-        $company = new \App\Company();
+        $company = new \App\Product();
         $company->getProduct($data);
         break;
     case "make_check":
@@ -96,7 +76,7 @@ switch ($requestC[4]){
     case "checks":
         $user = new \App\User();
         $userId = $user->getUserId($data["token"]);
-        $company = new \App\Company();
+        $company = new \App\Product();
         $company->getCheckList($data);
         break;
     case "write_off":

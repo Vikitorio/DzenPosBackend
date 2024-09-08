@@ -52,28 +52,18 @@ class Warehouse
                 $stmt->bindParam(':discount', $product['discount']);
                 $stmt->bindParam(':price', $product['price']);
                 $stmt->execute();
-                $this->updateQuantity($product['product_id'], -$product['amount'], $companyId);
+                $productInstance = new Product();
+                $productInstance->updateQuantity([
+                    "id" => $product['product_id'], 
+                    "quantity" => -$product['amount'], 
+                    "company_id" => $companyId
+                ]);
             }
         } catch (PDOException $e) {
             echo "Connection failed: " . $e->getMessage();
             return null;
         }
     }
-
-    public function updateQuantity($productId, $quantity, $companyId){
-        $db = new DBConnection();
-        try {
-            $con = $db->startConnection();
-            $stmt = $con->prepare("UPDATE product SET quantity = quantity + :quantity WHERE id = :productId AND company_id = :companyId");
-            $stmt->bindParam(':productId', $productId);
-            $stmt->bindParam(':quantity', $quantity);
-            $stmt->bindParam(':companyId', $companyId);
-            $stmt->execute();
-        } catch (PDOException $e) {
-            echo "Connection failed: " . $e->getMessage();
-        }
-    }
-
 
     public function makeWriteOffDocument($data){
         $db = new DBConnection();

@@ -3,7 +3,8 @@ namespace App;
 
 class CompanyStatistic
 {
-    public function getCheckList($data){
+    public function getCheckList($data)
+    {
         $db = new DBConnection();
         try {
             $con = $db->startConnection();
@@ -14,7 +15,7 @@ class CompanyStatistic
             $stmt->execute();
             $result = array();
             $i = 0;
-            while($row = $stmt->fetch()){
+            while ($row = $stmt->fetch()) {
                 $result[$i]["status"] = $row["status"];
                 $result[$i]["time"] = $row["time"];
                 $result[$i]["cash_pay"] = $row["cash_pay"];
@@ -28,7 +29,8 @@ class CompanyStatistic
             return null;
         }
     }
-    public function getArrivalDocuments($companyId) {
+    public function getArrivalDocuments($companyId)
+    {
         $db = new DBConnection();
         try {
             $con = $db->startConnection();
@@ -70,7 +72,8 @@ class CompanyStatistic
             return null;
         }
     }
-    public function checkList($data){
+    public function checkList($data)
+    {
         $db = new DBConnection();
         try {
             $con = $db->startConnection();
@@ -141,13 +144,13 @@ class CompanyStatistic
                         'tradespot' => $productRow['tradespot'],
                         'discount' => $productRow['discount'],
                         'self_price' => $productRow['self_price'],
-                        'self_price_sum' => $productRow['self_price']*$productRow['amount'],
+                        'self_price_sum' => $productRow['self_price'] * $productRow['amount'],
                         'price' => $productRow['price'],
-                        'price_sum' => $productRow['price']*$productRow['amount'],
+                        'price_sum' => $productRow['price'] * $productRow['amount'],
 
                     );
                     $check['products'][] = $product;
-                    $check['self_price'] +=  $product["amount"] * $product['self_price'];
+                    $check['self_price'] += $product["amount"] * $product['self_price'];
                 }
                 $checks[] = $check;
             }
