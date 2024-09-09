@@ -10,10 +10,9 @@ if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'
     exit();
 }
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    // Stop the PHP algorithm execution
     exit();
 }
-$requestC = explode("/",$_SERVER["REQUEST_URI"]);
+$requestC = explode("/", $_SERVER["REQUEST_URI"]);
 $method = $_SERVER['REQUEST_METHOD'];
 $contentType = isset($_SERVER["CONTENT_TYPE"]) ? trim($_SERVER["CONTENT_TYPE"]) : '';
 
@@ -35,42 +34,38 @@ if (strpos($contentType, 'multipart/form-data') !== false) {
     $data = json_decode(file_get_contents('php://input'), true);
 }
 
-switch ($requestC[4]){
+switch ($requestC[4]) {
     case "login":
-        $user = new \App\User();
+        $user = new User();
         $user->authorization($data);
-        break;
-    case "company":
-        echo 'company';
-        break;
-    case "add_company":
-        $user = new User();
-        $user->addCompany($data["token"],$data["title"],$data["address"]);
-        break;
-    case "company_list":
-        $user = new User();
-        $user->getCompanyList($data["token"]);
         break;
     case "registration":
         $user = new User();
         $user->registration($data);
         break;
+    case "add_company":
+        $company = new \App\Company();
+        $company->addCompany($data);
+        break;
+    case "company_list":
+        $company = new \App\Company();
+        $company->getCompanyList($data);
+        break;
+
     case "add_product":
         $user = new User();
-        $company = new Product();
-        $company->addProduct($userId = 1,$data);
+        $product= new \App\Product();
+        $product->addProduct($data);
         break;
     case "get_product":
         $user = new User();
-       // $userId = $user->getUserId($data["token"]);
-        $company = new Product();
-        $company->getProduct($data);
+        // $userId = $user->getUserId($data["token"]);
+        $product = new \App\Product();
+        $product->getProduct($data);
         break;
     case "make_check":
-        $user = new User();
-        $userId = $user->getUserId($data["token"]);
-        $warehouse = new Warehouse();
-        $warehouse->makeCheck($data);
+        $receipt = new \App\Receipt();
+        $receipt->makeCheck($data);
         break;
     case "checks":
         $user = new User();
@@ -93,7 +88,7 @@ switch ($requestC[4]){
     case "check":
         $user = new User();
         $userId = $user->getUserId($data["token"]);
-        if($requestC[5] == "all"){
+        if ($requestC[5] == "all") {
             $statistic = new \App\CompanyStatistic();
             $statistic->checkList($data);
         }
@@ -111,12 +106,5 @@ switch ($requestC[4]){
 }
 
 
-/*
-$user = new User($data);
-$user->user_login();
-$user = new User($data);
-$user->getUserInfo();
-$user->registration();
-*/
 
 ?>

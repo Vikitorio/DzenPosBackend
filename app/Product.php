@@ -3,7 +3,7 @@
 namespace App;
 class Product
 {
-    public function addProduct($userId, $data) {
+    public function addProduct( $data) {
         try {
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $image = $_FILES['image'];
@@ -30,15 +30,13 @@ class Product
         } catch (PDOException $e) {
             echo "Connection failed: " . $e->getMessage();
             return null;
-        } catch (Exception $e) {
-            echo "Error: " . $e->getMessage();
-            return null;
-        }
+        } 
     }
     public function updateQuantity($data){
         try {
             $pr_rep = new ProductRepository();  
             $result = $pr_rep->updateQuantity($data);
+            return $result;
         } catch (PDOException $e) {}
     }
     public function getProduct($data)
@@ -54,4 +52,26 @@ class Product
         $result = $productRep->getProduct($product);
         echo json_encode($result);  
     }
+
+    public function makeProductSale($data){
+        $products = $data["products"];
+        $productRepository = new ProductRepository();
+        foreach ($products as $product) {
+            $product["document_id"] = $data["document_id"];
+            $productRepository->makeProductSale($product);
+        }
+        return true;
+    }
+    public function updateProductCost($data){}
+    public function updateProductSellPrice($data){}
+    public function getCurrentQuantity($data){
+        $productRepo = new ProductRepository();
+        return $productRepo->getCurrentQuantity($data);
+    }
+    public function getCurrentCost($data){
+        $productRepo = new ProductRepository();
+        return $productRepo->getCurrentCost($data);
+    }
+   
+
 }

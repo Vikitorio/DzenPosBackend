@@ -2,15 +2,10 @@
 
 namespace App;
 
-class UserRepository
+class UserRepository extends Repository
 {
+    use RepositoryDBConnection;
     private $sessionToken;
-    private $dbConnection;
-    public function __construct()
-    {
-        $db = DBConnection::getInstance();
-        $this->dbConnection = $db->getConnection();
-    }
     public function authorization ($userData){
         try {
             $stmt = $this->dbConnection->prepare("SELECT * FROM user WHERE phone_number = :phone_number AND password = :password");
@@ -78,4 +73,21 @@ class UserRepository
             return false;
         } 
     }
+    public function getUserIdByToken($token)
+    {
+        try {
+
+                $stmt = $this->dbConnection->prepare("SELECT user_id FROM session_token WHERE token = :token");
+                $stmt->bindParam(':token', $token);
+                $stmt->execute();
+                $user = $stmt->fetch();
+                return $user["user_id"];
+        } catch (PDOException $e) {
+            echo "Error checking account existence: " . $e->getMessage();
+            return false;
+        } 
+   
+
+
+}
 }

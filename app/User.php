@@ -56,74 +56,15 @@ class User
     }
 
 
-
-
-    public function getCompanyList($token)
-    {
-        $db = new DBConnection();
-        $id = $this->getUserId($token);
-        try {
-            $con = $db->startConnection();
-            $stmt = $con->prepare("SELECT * FROM company WHERE user_id = :user_id");
-            $stmt->bindParam(':user_id', $id);
-            $stmt->execute();
-            $data = array();
-            $i = 0;
-            while ($row = $stmt->fetch()) {
-                $data[$i]["company_id"] = $row["id"];
-                $data[$i]["company_name"] = $row["company_name"];
-                $data[$i]["company_adress"] = $row["address"];
-                $i++;
-            }
-            echo json_encode($data);
-        } catch (PDOException $e) {
-            echo "Connection failed: " . $e->getMessage();
-            return null;
-        }
-    }
    
     public function getUserIdByToken($token)
     {
-        $db = new DBConnection();
-        try {
-            $conn = $db->startConnection();
-            if ($conn) {
-                $stmt = $conn->prepare("SELECT user_id FROM session_token WHERE token = :token");
-                $stmt->bindParam(':token', $token);
-                $stmt->execute();
-                $user = $stmt->fetch();
-                return $user["user_id"];
-            }
-            return false;
-        } catch (PDOException $e) {
-            echo "Error checking account existence: " . $e->getMessage();
-            return false;
-        } finally {
-            if ($conn) {
-                $conn = null;
-            }
-        }
+        $userRep = new UserRepository();
+        $userId = $userRep->getUserIdByToken($token);
+        return $userId;
     }
-    public function addCompany($sessionToken, $title, $address)
-    {
-        $db = new DBConnection();
-        $user_id = $this->getUserId($sessionToken);
-        $company_id = uniqid("", false);
-        echo $user_id . " company " . $company_id;
-        try {
-            $con = $db->startConnection();
-            $stmt = $con->prepare("INSERT INTO company (id,user_id, company_name,address) VALUE (:id,:user_id, :company_name,:address)");
-            $stmt->bindParam(':id', $company_id);
-            $stmt->bindParam(':user_id', $user_id);
-            $stmt->bindParam(':company_name', $title);
-            $stmt->bindParam(':address', $address);
-            $stmt->execute();
-        } catch (PDOException $e) {
-            echo "Connection failed: " . $e->getMessage();
-            return null;
-        }
 
-    }
+   
 
 
 }
