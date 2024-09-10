@@ -68,38 +68,30 @@ switch ($requestC[4]) {
         $receipt->makeCheck($data);
         break;
     case "checks":
-        $user = new User();
-        $userId = $user->getUserId($data["token"]);
-        $company = new \App\Product();
-        $company->getCheckList($data);
+        $statistic = new \App\Statistic();
+        $statistic->getCheckList($data);
         break;
     case "write_off":
-        $user = new User();
-        $userId = $user->getUserId($data["token"]);
-        $warehouse = new Warehouse();
+        $warehouse = new \App\Warehouse();
         $warehouse->makeWriteOffDocument($data);
         break;
     case "make_arrival":
-        $user = new User();
-        $userId = $user->getUserId($data["token"]);
-        $warehouse = new Warehouse();
+        $warehouse = new \App\Warehouse();
         $warehouse->makeArrivalDocument($data);
         break;
     case "check":
-        $user = new User();
-        $userId = $user->getUserId($data["token"]);
         if ($requestC[5] == "all") {
-            $statistic = new \App\CompanyStatistic();
-            $statistic->checkList($data);
+            $statistic = new \App\Statistic();
+            $statistic->getCheckListDetailed($data);
         }
         break;
     case "get_write_off":
-        $warehouse = new Warehouse();
+        $warehouse = new \App\Warehouse();
         $warehouse->getWriteOffDocuments($data["company_id"]);
         break;
     case "get_arrivals":
-        $statistic = new CompanyStatistic();
-        $statistic->getArrivalDocuments($data["company_id"]);
+        $warehouse = new \App\Warehouse();
+        $warehouse->getArrivalDocuments($data["company_id"]);
         break;
     default:
         echo "annexpected api";

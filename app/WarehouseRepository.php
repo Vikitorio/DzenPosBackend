@@ -1,6 +1,6 @@
 <?php
 namespace App;
-class WarehouseRepository extends \Repository
+class WarehouseRepository extends Repository
 {
     public function makeArrivalDocument($data)
     {
@@ -36,6 +36,8 @@ class WarehouseRepository extends \Repository
             $stmt->bindParam(':cost', $product['cost']);
             $stmt->bindParam(':sell_price', $product['sell_price']);
             $stmt->execute();
+        }catch (PDOException $e) {
+            echo 'err: '. $e->getMessage();
         }
     }
     public function makeProductWriteOffRecord($documentId, $companyId, $product)
@@ -49,8 +51,6 @@ class WarehouseRepository extends \Repository
             $stmt->bindParam(':amount', $product['amount']);
             $stmt->bindParam(':cost', $product['cost']);
             $stmt->execute();
-            $product = new Product();
-            $product->updateQuantity([$product['product_id'], -$product['amount'], $companyId]);
         } catch (PDOException $e) {
             echo "Connection failed: " . $e->getMessage();
             return null;

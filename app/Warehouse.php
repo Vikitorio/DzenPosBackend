@@ -9,7 +9,8 @@ class Warehouse
             $waregouseRepo = new WarehouseRepository();
             $lastId = $waregouseRepo->makeWriteOffDocument($data);
             if ($lastId) {
-                $waregouseRepo->makeProductWriteOffRecord($lastId, $data["company_id"], $data);
+                
+                $this->makeWriteOffProducts($lastId,  $data);
                 $result = array();
                 $result["status"] = "done";
                 echo json_encode($result);
@@ -24,16 +25,18 @@ class Warehouse
 
     public function makeWriteOffProducts($documentId, $data)
     {
-
+        
         $waregouseRepo = new WarehouseRepository();
-        $products = $data["write_off"]["products"];
+        $products = $data["arrival"]["products"];
         $companyId = $data["company_id"];
         try {
 
             foreach ($products as $product) {
                 $waregouseRepo->makeProductWriteOffRecord($documentId, $companyId, $product);
-                $product = new Product();
-                $product->updateQuantity([$product['product_id'], -$product['amount'], $data['company_id']]);
+                $productItem = new Product();
+                $product['amount'] = $product['amount'] * -1;
+                $productItem->updateQuantity([
+                   'product_id'=> $product['product_id'], "quantity" => $product['amount'], 'company_id' => $data['company_id']]);
             }
 
         } catch (PDOException $e) {
@@ -46,7 +49,7 @@ class Warehouse
         $warehouseRepo = new WarehouseRepository();
         $documentId = $warehouseRepo->makeArrivalDocument($data);
         if ($documentId !== null) {
-            $this->makeWriteOffProducts($documentId, $data);
+            $this->makeArrivalProducts($documentId, $data);
         }
     }
 
@@ -59,7 +62,8 @@ class Warehouse
         $warehouseRepo = new WarehouseRepository();
         try {
             foreach ($products as $product) {
-                $warehouseRepo->makeProductArrivalRecord($documentId, $sellerId, $companyId, $product);
+                
+                $warehouseRepo->makeProductArrivalRecord($documentId,$companyId, $sellerId,  $product);
                 $productInfo = [
                     'product_id' => $product['product_id'],
                     'company_id' => $data['company_id'],
@@ -70,8 +74,8 @@ class Warehouse
                 $arrivalQuantity = $product['amount'];
                 $totalCost = $currentCost;
                 $currentQuantity = $productItem->getCurrentQuantity($productInfo);
+                $totalQuantity = $currentQuantity + $arrivalQuantity;
                 if ($currentQuantity > 0) {
-                    $totalQuantity = $currentQuantity + $arrivalQuantity;
                     $totalCost = (($currentQuantity * $currentCost) + ($arrivalQuantity * $arrivalCost)) / $totalQuantity;
                 } elseif ($currentQuantity <= 0) {
                     $totalCost = $arrivalCost;
@@ -84,12 +88,12 @@ class Warehouse
                 $productItem->updateProductSellPrice([
                     'product_id' => $product['product_id'],
                     'company_id' => $data['company_id'],
-                    'selling_price' => $product['sell_price'],
+                    'sell_price' => $product['price'],
                 ]);
                 $productItem->updateQuantity([
                     'product_id' => $product['product_id'],
                     'company_id' => $data['company_id'],
-                    'cost' => $totalQuantity,
+                    'quantity' => $arrivalQuantity,
                 ]);
             }
         } catch (PDOException $e) {

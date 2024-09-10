@@ -1,6 +1,7 @@
 <?php
+namespace App;
 
-class StatisticRepository extends Repository{
+class StatisticRepository extends \App\Repository{
     public function getCheckList($data)
     {
         try {

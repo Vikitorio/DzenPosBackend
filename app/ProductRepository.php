@@ -1,7 +1,6 @@
 <?php
 
 namespace App;
-use Repository;
 class ProductRepository extends \App\Repository
 {
     public function addProduct($product)
@@ -66,6 +65,7 @@ class ProductRepository extends \App\Repository
     public function updateQuantity($product)
     {
         try {
+            echo $product["quantity"];
             $stmt = $this->dbConnection->prepare("UPDATE product SET quantity = quantity + :quantity WHERE id = :product_id AND company_id = :company_id");
             $stmt->execute($product);
         } catch (PDOException $e) {
@@ -75,22 +75,29 @@ class ProductRepository extends \App\Repository
     public function updateProductCost($productId, $newCost, $companyId)
     {
         try {
-            $stmt = $this->dbConnnection->prepare("UPDATE product SET cost = :cost	WHERE id = :productId AND company_id = :companyId");
-            $stmt->bindParam(':productId', $productId);
+            $stmt = $this->dbConnection->prepare("UPDATE product SET cost = :cost	WHERE id = :product_id AND company_id = :company_id");
+            $stmt->bindParam(':product_id', $productId);
             $stmt->bindParam(':cost', $newCost);
-            $stmt->bindParam(':companyId', $companyId);
+            $stmt->bindParam(':company_id', $companyId);
             $stmt->execute();
         } catch (PDOException $e) {
         }
     }
-    public function updateProductSellPrice($data)
+    public function updateProductSellPrice($productId, $newSellPrice, $companyId)
     {
-
+        try {
+            $stmt = $this->dbConnection->prepare("UPDATE product SET selling_price = :sell_price	WHERE id = :product_id AND company_id = :company_id");
+            $stmt->bindParam(':product_id', $productId);
+            $stmt->bindParam(':sell_price',  $newSellPrice);
+            $stmt->bindParam(':company_id', $companyId);
+            $stmt->execute();
+        } catch (PDOException $e) {
+        }
     }
     public function getCurrentQuantity($data)
     {
         try {
-            $stmt = $this->dbConnnection->prepare("SELECT quantity FROM product WHERE id = :productId AND company_id = :companyId");
+            $stmt = $this->dbConnection->prepare("SELECT quantity FROM product WHERE id = :product_id AND company_id = :company_id");
             $stmt->execute($data);
             $result = $stmt->fetch(\PDO::FETCH_ASSOC);
             $currentQuantity = $result['quantity'];
@@ -103,7 +110,7 @@ class ProductRepository extends \App\Repository
     }
     public function getCurrentCost($data){
         try {
-            $stmt = $this->dbConnnection->prepare("SELECT cost FROM product WHERE id = :productId AND company_id = :companyId");
+            $stmt = $this->dbConnection->prepare("SELECT cost FROM product WHERE id = :product_id AND company_id = :company_id");
             $stmt->execute($data);
             $result = $stmt->fetch(\PDO::FETCH_ASSOC);
             $currentCost = $result['cost'];

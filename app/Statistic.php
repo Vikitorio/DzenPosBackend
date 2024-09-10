@@ -6,9 +6,9 @@ class Statistic
     public function getCheckList($data)
     {
         try {
-           $StatisticRepo = new StatisticRepository();
-           $result = $StatisticRepo->getCheckList($data);
-            echo $result;
+            $StatisticRepo = new StatisticRepository();
+            $result = $StatisticRepo->getCheckList($data);
+            echo json_encode($result);
         } catch (PDOException $e) {
             echo "Connection failed: " . $e->getMessage();
             return null;
@@ -20,9 +20,9 @@ class Statistic
         try {
             $StatisticRepo = new StatisticRepository();
             $result = $StatisticRepo->getCheckListDetailed($data);
-            echo $result;
-        }catch (PDOException $e) {
-            echo "". $e->getMessage();
+            echo json_encode($result);
+        } catch (PDOException $e) {
+            echo "" . $e->getMessage();
         }
     }
 

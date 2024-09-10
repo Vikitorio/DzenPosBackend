@@ -35,8 +35,7 @@ class Product
     public function updateQuantity($data){
         try {
             $pr_rep = new ProductRepository();  
-            $result = $pr_rep->updateQuantity($data);
-            return $result;
+            $pr_rep->updateQuantity($data);
         } catch (PDOException $e) {}
     }
     public function getProduct($data)
@@ -62,8 +61,14 @@ class Product
         }
         return true;
     }
-    public function updateProductCost($data){}
-    public function updateProductSellPrice($data){}
+    public function updateProductCost($data){
+        $productRepo = new ProductRepository();
+        $productRepo->updateProductCost($data["product_id"],$data["cost"],$data["company_id"]);
+    }
+    public function updateProductSellPrice($data){
+        $productRepo = new ProductRepository();
+        $productRepo->updateProductSellPrice($data["product_id"],$data["sell_price"],$data["company_id"]);
+    }
     public function getCurrentQuantity($data){
         $productRepo = new ProductRepository();
         return $productRepo->getCurrentQuantity($data);
